@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Dashboard | Prelaunch</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0d1117;
+      color: #f0f6fc;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 950px;
+      margin: 50px auto;
+      background: #161b22;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 0 12px rgba(0,0,0,0.4);
+    }
+    h2 {
+      text-align: center;
+      color: #58a6ff;
+      margin-bottom: 2rem;
+    }
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .card {
+      flex: 1 1 30%;
+      margin: 10px;
+      background: #21262d;
+      border-radius: 12px;
+      text-align: center;
+      padding: 1rem;
+      border: 1px solid #30363d;
+    }
+    .card h3 { color: #58a6ff; margin: 0 0 0.3rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #30363d;
+      text-align: left;
+    }
+    th {
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    tr:hover { background: #21262d; }
+    .status {
+      border-radius: 8px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.85rem;
+      text-transform: capitalize;
+    }
+    .confirmed { background: #238636; color: white; }
+    .pending { background: #9e6a03; color: white; }
+    #walletPrompt {
+      max-width: 400px;
+      margin: 100px auto;
+      background: #161b22;
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    #walletPrompt input {
+      width: 100%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 8px;
+      background: #21262d;
+      color: white;
+      margin-top: 0.4rem;
+    }
+    #walletPrompt button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #238636;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #walletPrompt button:hover { background: #2ea043; }
+  </style>
+</head>
+<body>
+
+  <!-- Wallet prompt (only shown if wallet not found) -->
+  <div id="walletPrompt" style="display:none;">
+    <h2>View Your Dashboard</h2>
+    <p>Enter your ETH wallet address to see your investments.</p>
+    <input type="text" id="walletInput" placeholder="0x...">
+    <button id="openDashboard">Open Dashboard</button>
+  </div>
+
+  <!-- Actual dashboard -->
+  <div class="container" id="dashboard" style="display:none;">
+    <h2>My Investment Dashboard</h2>
+
+    <div class="summary">
+      <div class="card">
+        <h3>Total USD Invested</h3>
+        <p id="totalUSD">$0</p>
+      </div>
+      <div class="card">
+        <h3>Total Tokens</h3>
+        <p id="totalTokens">0</p>
+      </div>
+      <div class="card">
+        <h3>Wallet</h3>
+        <code id="walletDisplay"></code>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ETH</th>
+          <th>USD</th>
+          <th>Tokens</th>
+          <th>Tx Hash</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+  // On load, determine if wallet in URL or localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  let wallet = urlParams.get("wallet") || localStorage.getItem("user_wallet");
+
+  const promptDiv = document.getElementById("walletPrompt");
+  const dashDiv = document.getElementById("dashboard");
+
+  if (!wallet) {
+    promptDiv.style.display = "block";
+  } else {
+    loadDashboard(wallet);
+  }
+
+  // Prompt logic
+  document.getElementById("openDashboard").addEventListener("click", () => {
+    const w = document.getElementById("walletInput").value.trim();
+    if (w) {
+      localStorage.setItem("user_wallet", w);
+      window.location.href = `/dashboard?wallet=${w}`;
+    } else {
+      alert("Please enter a valid wallet address.");
+    }
+  });
+
+  async function loadDashboard(wallet) {
+    dashDiv.style.display = "block";
+    document.getElementById("walletDisplay").textContent = wallet;
+
+    const res = await fetch(`/api/purchases?wallet=${wallet}`);
+    const data = await res.json();
+
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+
+    let totalUSD = 0, totalTokens = 0;
+
+    data.forEach(row => {
+      totalUSD += row.amount;
+      totalTokens += row.tokens_allocated;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.id}</td>
+        <td>${row.amount_eth.toFixed(6)}</td>
+        <td>${row.amount.toFixed(2)}</td>
+        <td>${row.tokens_allocated.toFixed(2)}</td>
+        <td>${row.tx_hash ? `<code>${row.tx_hash.slice(0,10)}...</code>` : "-"}</td>
+        <td><span class="status ${row.confirmed ? 'confirmed' : 'pending'}">${row.confirmed ? 'Confirmed' : 'Pending'}</span></td>
+        <td>${row.created_at}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    document.getElementById("totalUSD").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("totalTokens").textContent = totalTokens.toFixed(2);
+  }
+  </script>
+</body>
+</html>

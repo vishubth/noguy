@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--========== BOX ICONS ==========-->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+
+        <!--========== CSS ==========-->
+        <link rel="stylesheet" href="static/css/styles.css">
+
+        <title>NOGUY</title>
+    </head>
+    <body>
+        <!--========== SCROLL TOP ==========-->
+        <a href="#" class="scrolltop" id="scroll-top">
+            <i class='bx bx-up-arrow-alt scrolltop__icon'></i>
+        </a>
+        
+        <!--========== HEADER ==========-->
+        <header class="l-header" id="header">
+            <nav class="nav bd-container">
+                <a href="#" class="nav__logo">$NOGUY</a>
+
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item"><a href="#home" class="nav__link active-link">Start Chillin Here</a></li>
+                        <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
+                        <li class="nav__item"><a href="#community" class="nav__link">Community</a></li>
+                        <li class="nav__item"><a href="#ca" class="nav__link">CA</a></li>
+
+                        <li class="nav__item">
+                            <button class="button" id="open-swap-btn" style="display: none;" onclick="openSwapTab()">SWAP</button>
+                        </li>
+                        <li class="nav__item">
+                            <button class="button" id="open-dashboard-btn" onclick="openDashboard()">DASHBOARD</button>
+                        </li>
+
+                        <!-- <li><i class='bx bx-toggle-left change-theme' id="theme-button"></i></li> -->
+                    </ul>
+                </div>
+
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class='bx bx-grid-alt'></i>
+                </div>
+            </nav>
+        </header>
+
+        <main class="l-main">
+            <!--========== HOME ==========-->
+            <section class="home" id="home">
+                <div class="home__container bd-container bd-grid">
+                    <div class="home__img">
+                        <img src="static/imgA/noguy.png" alt="">
+                    </div>
+
+                    <div class="home__data">
+                        <h1 class="home__title">Not just a guy. Just NoGuy.</h1>
+                        <p class="home__description">Because life's too short to take too seriously. Chill vibes. No stress. Just $NOGUY.</p>
+                        <a href="/user-panel" class="button">BUY $NOGUY</a>
+                    </div>   
+                </div>
+            </section>
+            
+            <div id="swap-tab" class="floating-tab">
+                <div class="tab-header">
+                    <h3>Coin Swap</h3>
+                    <button id="close-tab-btn" onclick="closeSwapTab()">X</button>
+                </div>
+                <div class="tab-content">
+                    <label for="input-coin">Input Coin:</label>
+                    <input type="text" id="input-coin" placeholder="Enter coin symbol or amount">
+            
+                    <label for="output-coin">Output Coin:</label>
+                    <input type="text" id="output-coin" placeholder="Enter coin symbol or amount">
+            
+                    <button class="open" id="connect-wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+                    <button id="swap-btn" onclick="swapCoins()">Swap</button>
+                </div>
+            </div>
+
+            <!--========== SHARE ==========-->
+            <section class="share section bd-container" id="about">
+                <div class="share__container bd-grid">
+                    <div class="share__data">
+                        <h2 class="section-title-center">Who is NoGuy?
+                            <br> Just a NoGuy?</h2>
+                        <p class="share__description">NoGuy is all of us who know life’s not a race; it’s a vibe. We take it easy, laugh things off, and keep rolling with the good times, enjoying life as it flows.</p>
+                        <a href="#community" class="button">NOGUY NATION</a>
+                    </div>
+
+                    <div class="share__img">
+                        <img src="static/imgA/noguyB.png" alt="">
+                    </div>
+                </div>
+            </section>
+
+            <!--========== DECORATION ==========-->
+            <section class="decoration section bd-container" id="community">
+                <h2 class="section-title">The NoGuy Nation<br> Hop in and be part of the movement</h2>
+                <div class="decoration__container bd-grid">
+                    <div class="decoration__data">
+                        <img src="static/imgA/twitter-x.png" alt="" class="decoration__img">
+                        <h3 class="decoration__title">Follow NOGUY on X</h3>
+                        <a href="https://x.com/NoGuyCoin" class="button button-link" target="_blank">@NoGuyCoin</a>
+                    </div>
+
+                    <div class="decoration__data">
+                        <img src="static/imgA/telegram.png" alt="" class="decoration__img">
+                        <h3 class="decoration__title">Join NOGUY Community</h3>
+                        <a href="https://t.me/NOGUYCOIN" class="button button-link">@NOGUYCOIN</a>
+                    </div>
+
+                    <div class="decoration__data">
+                        <img src="static/imgA/dex-screener-black-logo-transparent.png" alt="" class="decoration__img">
+                        <h3 class="decoration__title">Chart live on dexscreener</h3>
+                        <a href="#" class="button button-link">Link</a>
+                    </div>
+                </div>
+            </section>
+
+
+              
+
+            <!--========== SEND GIFT ==========-->
+            <section class="send section" id="ca">
+               <div class="send__container bd-container bd-grid">
+                        <div class="send__content">
+                            <h2 class="section-title-center send__title">BUY $NOGUY Now</h2>
+                            <p class="send__description">Get your $NOGUY contract address below and copy it to get started.</p>
+                            <form action="">
+                                <div class="send__direction">
+                                    <!-- Contract Address input, now visible for the user to copy -->
+                                    <input type="text" value="0x123abc..." id="ca" class="send__input" readonly>
+                                    <a href="#" class="button" id="send-btn">Copy CA</a>
+                                </div>
+                            </form>
+                        </div>
+
+
+                    <div class="send__img">
+                        <img src="static/imgA/noguyB.png" alt="">
+                    </div>
+                </div>
+            </div>
+
+            </section>
+        </main>
+
+        <!--========== FOOTER ==========-->
+        <footer class="footer section">
+            <p class="footer__copy">&#169; 2024 NOGUY</p>
+        </footer>
+
+        <!--========== SCROLL REVEAL ==========-->
+        <script src="https://unpkg.com/scrollreveal"></script>
+
+        <!--========== MAIN JS ==========-->
+        <script src="static/js/main.js"></script>
+        <script src="static/js/677286ae7022cd5a84ed7530.js"></script>
+        <script>
+            function openDashboard() {
+            const wallet = localStorage.getItem("user_wallet");
+
+            if (wallet) {
+                // wallet already saved (from user-panel)
+                window.location.href = `/dashboard?wallet=${wallet}`;
+            } else {
+                // no wallet saved yet → ask user to input it
+                const input = prompt("Enter your ETH wallet address to view your dashboard:");
+                if (input && input.startsWith("0x")) {
+                localStorage.setItem("user_wallet", input);
+                window.location.href = `/dashboard?wallet=${input}`;
+                } else {
+                alert("Please enter a valid ETH wallet address.");
+                }
+            }
+            }
+        </script>
+
+    </body>
+</html>
