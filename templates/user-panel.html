@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Buy Coin | Prelaunch</title>
+  <title>Buy DoGuy Token | Prelaunch</title>
   <link rel="stylesheet" href="/static/css/styles.css">
   <style>
     body {
@@ -13,7 +13,7 @@
       padding: 0;
     }
     .container {
-      max-width: 500px;
+      max-width: 520px;
       margin: 60px auto;
       background: #161b22;
       border-radius: 16px;
@@ -30,7 +30,7 @@
       margin-top: 1rem;
       font-weight: 500;
     }
-    input {
+    input[type="text"], input[type="number"] {
       width: 100%;
       padding: 0.6rem;
       border: none;
@@ -77,11 +77,26 @@
       margin: 1rem auto;
     }
     .hidden { display: none; }
+    .highlight {
+      color: #00ffae;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .terms-box {
+      background: #1b1f24;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1.2rem;
+      font-size: 0.9rem;
+      color: #c9d1d9;
+    }
+    .terms-box strong { color: #58a6ff; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Buy Prelaunch Coin</h2>
+    <h2>Buy <span style="color:#00ffae;">DoGuy</span> Token (Prelaunch)</h2>
 
     <!-- Step 1: Purchase Form -->
     <form id="buyForm">
@@ -90,6 +105,21 @@
 
       <label for="amount">Amount (in USD)</label>
       <input type="number" id="amount" step="any" required>
+
+      <!-- Terms & Conditions -->
+      <div class="terms-box">
+        <p><strong>Before You Buy:</strong></p>
+        <ul style="text-align:left; line-height:1.6;">
+          <li>You will receive your <strong>DoGuy Tokens</strong> directly in your ETH wallet after launch.</li>
+          <li>Tokens cannot be traded until the official launch date.</li>
+          <li>All prelaunch buyers get a <strong>20% bonus</strong> to boost liquidity on launch.</li>
+          <li>By purchasing, you agree to all <a href="/terms" style="color:#58a6ff;">terms and conditions</a> defined on this site.</li>
+        </ul>
+        <label style="display:flex; align-items:center; gap:6px; margin-top:1rem;">
+          <input type="checkbox" id="agreeTerms" required>
+          <span>I understand and agree to the above terms.</span>
+        </label>
+      </div>
 
       <button type="submit">Proceed to Buy</button>
     </form>
@@ -103,8 +133,8 @@
         <img id="qrCode" alt="QR Code" width="160" height="160">
       </div>
       <p>Amount to send: <strong><span id="ethAmount"></span> ETH</strong></p>
-      <p>You will receive <strong><span id="tokenAmount"></span></strong> tokens.</p>
-      <p class="note">Once you send the ETH and it reaches at least 2 confirmations, paste your transaction hash below to confirm your payment.</p>
+      <p class="highlight">You will receive <span id="tokenAmount"></span> <strong>DoGuy Tokens</strong> (including +20% bonus 🎉)</p>
+      <p class="note">After sending the ETH and 2 confirmations, paste your transaction hash below to confirm your payment.</p>
 
       <label for="txhash">Transaction Hash</label>
       <input type="text" id="txhash" placeholder="0xYourTxHashHere">
@@ -128,6 +158,12 @@
     e.preventDefault();
     const wallet = document.getElementById("wallet").value.trim();
     const amount = document.getElementById("amount").value.trim();
+    const agree = document.getElementById("agreeTerms").checked;
+
+    if (!agree) {
+      alert("You must agree to the terms and conditions before proceeding.");
+      return;
+    }
 
     const res = await fetch("/api/buy", {
       method: "POST",
@@ -137,16 +173,19 @@
 
     const data = await res.json();
     if (data.eth_address) {
+      // Add +20% bonus
+      const totalTokens = (data.tokens_allocated * 1.2).toFixed(2);
+
       paymentInfo.classList.remove("hidden");
       document.getElementById("ethAddress").textContent = data.eth_address;
       document.getElementById("ethAmount").textContent = data.amount_eth;
-      document.getElementById("tokenAmount").textContent = data.tokens_allocated;
+      document.getElementById("tokenAmount").textContent = totalTokens;
 
       // Generate QR Code for the ETH address
       document.getElementById("qrCode").src =
         `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(data.eth_address)}`;
 
-      // Remember wallet in localStorage for dashboard use
+      // Save wallet for dashboard
       localStorage.setItem("user_wallet", wallet);
     } else {
       alert("Error: " + (data.detail || "Something went wrong"));
