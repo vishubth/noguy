@@ -36,7 +36,6 @@ DB = "presale.db"
 ADMIN_WALLET = "0xE562539aC11a45aC9D37C779A33D1b571e49f272"  # Your ETH wallet
 ETHERSCAN_API_KEY = "PUA9B1D9WGH3PCMPD94NKHT1VQUJ8YWEFM"
 TOKEN_RATE = 60000  # 1 ETH = 60,000 tokens
-USD_TO_ETH = get_live_usd_to_eth()  # conversion rate (USD → ETH)
 
 # -------------------------------
 # DATABASE SETUP
@@ -94,6 +93,7 @@ async def buy(request: Request):
     if not wallet or amount <= 0:
         raise HTTPException(status_code=400, detail="Invalid wallet or amount")
 
+    USD_TO_ETH = get_live_usd_to_eth()  # conversion rate (USD → ETH)
     amount_eth = round(amount * USD_TO_ETH, 6)
     tokens_allocated = round(amount_eth * TOKEN_RATE, 2)
     bonus = 1.2
@@ -215,6 +215,7 @@ def get_purchases(wallet: str, all: bool = False):
     conn.close()
 
     return JSONResponse([dict(row) for row in data])
+
 
 
 
