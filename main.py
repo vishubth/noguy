@@ -111,7 +111,7 @@ async def buy(request: Request):
         "wallet": wallet,
         "eth_address": ADMIN_WALLET,
         "amount_eth": amount_eth,
-        "tokens_allocated": tokens_allocated
+        "tokens_allocated": total_tokens
     })
 
 # -------------------------------
@@ -196,18 +196,25 @@ async def confirm_payment(request: Request):
 # API: Fetch purchases for a wallet
 # -------------------------------
 @app.get("/api/purchases")
-def get_purchases(wallet: str):
-    """Return all purchases for a specific wallet"""
+def get_purchases(wallet: str, all: bool = False):
+    """Return purchases for a wallet (confirmed only by default)"""
     if not wallet:
         raise HTTPException(status_code=400, detail="Wallet required")
 
     conn = get_db()
-    data = conn.execute("""
-        SELECT id, wallet, amount, amount_eth, tokens_allocated, tx_hash, confirmed, created_at
-        FROM purchases WHERE wallet=? ORDER BY created_at DESC
-    """, (wallet,)).fetchall()
+    if all:
+        data = conn.execute("""
+            SELECT id, wallet, amount, amount_eth, tokens_allocated, tx_hash, confirmed, created_at
+            FROM purchases WHERE wallet=? ORDER BY created_at DESC
+        """, (wallet,)).fetchall()
+    else:
+        data = conn.execute("""
+            SELECT id, wallet, amount, amount_eth, tokens_allocated, tx_hash, confirmed, created_at
+            FROM purchases WHERE wallet=? AND confirmed=1 ORDER BY created_at DESC
+        """, (wallet,)).fetchall()
     conn.close()
 
     return JSONResponse([dict(row) for row in data])
+
 
 
