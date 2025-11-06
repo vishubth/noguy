@@ -12,17 +12,21 @@ import os
 # GET ETH PRICE (Coingecko)
 # -------------------------------
 def get_live_usd_to_eth():
-    """Fetch live USD→ETH conversion rate from CoinGecko"""
+    """Try Binance first, fallback to Coinbase"""
     try:
-        res = requests.get(
-            "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
-            timeout=10
-        ).json()
-        eth_usd = res["ethereum"]["usd"]
-        return 1 / eth_usd  # USD→ETH
-    except Exception as e:
-        print("⚠️ Error fetching live rate:", e)
-        return 0.00052  # fallback default
+        res = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT", timeout=10)
+        res.raise_for_status()
+        eth_usd = float(res.json()["price"])
+    except Exception:
+        try:
+            res = requests.get("https://api.coinbase.com/v2/prices/ETH-USD/spot", timeout=10)
+            res.raise_for_status()
+            eth_usd = float(res.json()["data"]["amount"])
+        except Exception as e:
+            print("⚠️ Both Binance & Coinbase failed:", e)
+            return 0.00052
+    return round(1 / eth_usd, 8)
+
 
 
 # -------------------------------
@@ -215,6 +219,7 @@ def get_purchases(wallet: str, all: bool = False):
     conn.close()
 
     return JSONResponse([dict(row) for row in data])
+
 
 
 
