@@ -96,12 +96,14 @@ async def buy(request: Request):
 
     amount_eth = round(amount * USD_TO_ETH, 6)
     tokens_allocated = round(amount_eth * TOKEN_RATE, 2)
+    bonus = 1.2
+    total_tokens = round(tokens_allocated * bonus, 2)
 
     conn = get_db()
     conn.execute("""
         INSERT INTO purchases (wallet, amount, amount_eth, tokens_allocated)
         VALUES (?, ?, ?, ?)
-    """, (wallet, amount, amount_eth, tokens_allocated))
+    """, (wallet, amount, amount_eth, total_tokens))
     conn.commit()
     conn.close()
 
