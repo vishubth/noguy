@@ -174,7 +174,7 @@
     const data = await res.json();
     if (data.eth_address) {
       // Add +20% bonus
-      const totalTokens = (data.tokens_allocated * 1.2).toFixed(2);
+      const totalTokens = (data.tokens_allocated).toFixed(2);
 
       paymentInfo.classList.remove("hidden");
       document.getElementById("ethAddress").textContent = data.eth_address;
