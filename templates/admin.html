@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="/static/admin.css">
+
+<style>
+/* General Layout */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    padding: 20px;
+    background: #f2f4f7;
+}
+
+h1 {
+    color: #222;
+    margin-bottom: 25px;
+}
+
+/* LOGIN BOX */
+.login-box {
+    width: 300px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    margin: 80px auto 0 auto;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.login-box h2 {
+    margin-bottom: 15px;
+}
+
+/* Inputs inside login box */
+.login-box input {
+    width: 90%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #cbd2d9;
+    outline: none;
+    margin-top: 8px;
+}
+
+.login-box input:focus {
+    border-color: #0052cc;
+    box-shadow: 0 0 0 2px rgba(0,82,204,0.1);
+}
+
+/* Login Button */
+.login-box .btn {
+    width: 95%;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #0052cc;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-box .btn:hover {
+    background: #0747a6;
+}
+
+/* Admin Panel Buttons */
+#controls button {
+    padding: 10px 16px;
+    margin-right: 12px;
+    background: #0052cc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#controls button:hover {
+    background: #0747a6;
+}
+
+/* Table Styling */
+#data-table {
+    margin-top: 30px;
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+#data-table th, #data-table td {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#data-table th {
+    background: #e6e8ec;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+#data-table tr:hover {
+    background: #f7f9fc;
+}
+
+/* Stats Cards */
+.card-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    min-width: 180px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+    font-size: 28px;
+    margin: 0;
+    color: #0052cc;
+    font-weight: bold;
+}
+
+.card p {
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+}
+/* Add/Edit Form Box */
+.form-box {
+    width: 340px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 25px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.form-input {
+    width: 95%;
+    padding: 8px;
+    margin: 6px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.cancel {
+    background: #999;
+}
+.cancel:hover {
+    background: #777;
+}
+
+/* Add Edit/Delete buttons inside table */
+.action-btn {
+    padding: 5px 10px;
+    font-size: 13px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    color: white;
+}
+
+.edit-btn { background: #007bff; }
+.delete-btn { background: #dc3545; }
+
+.edit-btn:hover { background: #0056b3; }
+.delete-btn:hover { background: #b52a36; }
+
+#filter-bar input {
+    font-size: 13px;
+    padding: 7px 10px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Admin Panel</h1>
+
+<!-- LOGIN BOX -->
+<div id="login-section" class="login-box input">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username"><br><br>
+    <input id="password" type="password" placeholder="Password"><br><br>
+    <button onclick="login()" class="btn">Login</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel" style="display:none;">
+    <h2>Welcome Admin</h2>
+
+    <div id="controls">
+        <button onclick="loadPurchases()">Load Purchases</button>
+        <button onclick="loadStats()">View Stats</button>
+        <button onclick="showAddForm()" style="background:#28a745;">Add Purchase</button>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div id="filter-bar" style="display:none; margin:20px 0; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+
+        <h3 style="margin-top:0;">Filter Purchases</h3>
+
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            <input id="filter-wallet" placeholder="Wallet" class="form-input" style="width:200px;">
+            <input id="filter-amount" placeholder="Amount" class="form-input" style="width:150px;">
+            <input id="filter-amount-eth" placeholder="Amount ETH" class="form-input" style="width:150px;">
+            <input id="filter-tokens" placeholder="Tokens" class="form-input" style="width:150px;">
+            <input id="filter-confirmed" placeholder="Confirmed (0/1)" class="form-input" style="width:150px;">
+            <input id="filter-txhash" placeholder="TX Hash" class="form-input" style="width:250px;">
+        </div>
+
+        <button class="btn" style="margin-top:10px; width:180px;" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn cancel" style="margin-top:10px; width:180px;" onclick="clearFilters()">Clear Filters</button>
+
+    </div>
+
+    <!-- Add/Edit Form -->
+    <div id="form-box" class="form-box" style="display:none;">
+        <h3 id="form-title">Add Purchase</h3>
+
+        <input id="form-wallet" placeholder="Wallet" class="form-input">
+        <input id="form-amount" placeholder="Amount (USD)" class="form-input">
+        <input id="form-amount-eth" placeholder="Amount (ETH)" class="form-input">
+        <input id="form-tokens" placeholder="Tokens Allocated" class="form-input">
+        <input id="form-confirmed" placeholder="Confirmed (0/1)" class="form-input">
+
+        <button onclick="submitForm()" class="btn">Submit</button>
+        <button onclick="hideForm()" class="btn cancel">Cancel</button>
+    </div>
+
+    <div id="stats-cards" class="card-container" style="display:none;"></div>
+
+    <table id="data-table" style="display:none;">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+    </table>
+</div>
+
+
+<script>
+let token = null;
+
+/* --------------------------
+       LOGIN FUNCTION
+---------------------------*/
+async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/admin/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username, password})
+    });
+
+    if (res.status === 401) {
+        alert("Invalid username or password");
+        return;
+    }
+
+    const data = await res.json();
+    token = data.token;
+
+    // Hide login, show admin options
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+}
+
+/* --------------------------
+       LOAD PURCHASES
+---------------------------*/
+async function loadPurchases() {
+    const res = await fetch("/admin/api/purchases", {
+        headers: {"admin-token": token}
+    });
+
+    const data = await res.json();
+
+    document.getElementById("filter-bar").style.display = "block";   // show filters
+    document.getElementById("data-table").style.display = "table";    // show table
+    showTable(data);
+}
+
+function getFilterParams() {
+    const params = new URLSearchParams();
+
+    let wallet = document.getElementById("filter-wallet").value;
+    let amount = document.getElementById("filter-amount").value;
+    let amount_eth = document.getElementById("filter-amount-eth").value;
+    let tokens = document.getElementById("filter-tokens").value;
+    let confirmed = document.getElementById("filter-confirmed").value;
+    let txhash = document.getElementById("filter-txhash").value;
+
+    if (wallet !== "") params.append("wallet", wallet);
+    if (amount !== "") params.append("amount", amount);
+    if (amount_eth !== "") params.append("amount_eth", amount_eth);
+    if (tokens !== "") params.append("tokens_allocated", tokens);
+    if (confirmed !== "") params.append("confirmed", confirmed);
+    if (txhash !== "") params.append("tx_hash", txhash);
+
+    return params.toString();
+}
+
+/* APPLY FILTERS */
+async function applyFilters() {
+    const params = getFilterParams();
+
+    const res = await fetch(`/admin/api/purchases?${params}`, {
+        headers: {"admin-token": token}
+    });
+
+    const filteredData = await res.json();
+
+    // Show the updated table
+    document.getElementById("data-table").style.display = "table";
+    showTable(filteredData);
+}
+
+
+/* CLEAR FILTERS */
+function clearFilters() {
+    document.getElementById("filter-wallet").value = "";
+    document.getElementById("filter-amount").value = "";
+    document.getElementById("filter-amount-eth").value = "";
+    document.getElementById("filter-tokens").value = "";
+    document.getElementById("filter-confirmed").value = "";
+    document.getElementById("filter-txhash").value = "";
+
+    loadPurchases();
+}
+
+/* --------------------------
+       LOAD STATS
+---------------------------*/
+async function loadStats() {
+    const res = await fetch("/admin/api/stats", {
+        headers: {"admin-token": token}
+    });
+
+    const stats = await res.json();
+    showStats(stats);
+}
+
+/* --------------------------
+   SHOW ADD FORM
+---------------------------*/
+function showAddForm() {
+    editId = null;
+    document.getElementById("form-title").innerText = "Add Purchase";
+    clearForm();
+    document.getElementById("form-box").style.display = "block";
+}
+
+/* --------------------------
+   SHOW EDIT FORM
+---------------------------*/
+function showEditForm(row) {
+    editId = row.id;
+    document.getElementById("form-title").innerText = "Edit Purchase";
+
+    document.getElementById("form-wallet").value = row.wallet;
+    document.getElementById("form-amount").value = row.amount;
+    document.getElementById("form-amount-eth").value = row.amount_eth;
+    document.getElementById("form-tokens").value = row.tokens_allocated;
+    document.getElementById("form-confirmed").value = row.confirmed;
+
+    document.getElementById("form-box").style.display = "block";
+}
+
+function hideForm() {
+    document.getElementById("form-box").style.display = "none";
+}
+
+function clearForm() {
+    document.getElementById("form-wallet").value = "";
+    document.getElementById("form-amount").value = "";
+    document.getElementById("form-amount-eth").value = "";
+    document.getElementById("form-tokens").value = "";
+    document.getElementById("form-confirmed").value = "";
+}
+
+/* --------------------------
+   SUBMIT FORM (ADD/UPDATE)
+---------------------------*/
+async function submitForm() {
+    const payload = {
+        wallet: document.getElementById("form-wallet").value,
+        amount: parseFloat(document.getElementById("form-amount").value),
+        amount_eth: parseFloat(document.getElementById("form-amount-eth").value),
+        tokens_allocated: parseFloat(document.getElementById("form-tokens").value),
+        confirmed: parseInt(document.getElementById("form-confirmed").value)
+    };
+
+    let url = "/admin/api/purchases";
+    let method = "POST";
+
+    if (editId !== null) {
+        url = `/admin/api/purchases/${editId}`;
+        method = "PUT";
+    }
+
+    await fetch(url, {
+        method: method,
+        headers: { 
+            "Content-Type": "application/json",
+            "admin-token": token 
+        },
+        body: JSON.stringify(payload)
+    });
+
+    hideForm();
+    loadPurchases();
+}
+
+/* --------------------------
+   DELETE ROW
+---------------------------*/
+async function deletePurchase(id) {
+    if (!confirm("Delete this record?")) return;
+
+    await fetch(`/admin/api/purchases/${id}`, {
+        method: "DELETE",
+        headers: { "admin-token": token }
+    });
+
+    loadPurchases();
+}
+
+/* Rendering functions (same as before) */
+function showTable(data) {
+    document.getElementById("stats-cards").style.display = "none";
+    const table = document.getElementById("data-table");
+    const head = document.getElementById("table-head");
+    const body = document.getElementById("table-body");
+
+    table.style.display = "table";
+    head.innerHTML = "";
+    body.innerHTML = "";
+
+    if (!data.length) {
+        body.innerHTML = "<tr><td>No results</td></tr>";
+        return;
+    }
+
+    const headers = Object.keys(data[0]).concat(["Actions"]);
+    head.innerHTML = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+
+        Object.values(row).forEach(val => {
+            const td = document.createElement("td");
+            td.textContent = val;
+            tr.appendChild(td);
+        });
+
+        // Add Actions column
+        const actionTd = document.createElement("td");
+        actionTd.innerHTML = `
+            <button class="action-btn edit-btn" onclick='showEditForm(${JSON.stringify(row)})'>Edit</button>
+            <button class="action-btn delete-btn" onclick='deletePurchase(${row.id})'>Delete</button>
+        `;
+
+        tr.appendChild(actionTd);
+        body.appendChild(tr);
+    });
+}
+
+function showStats(stats) {
+    document.getElementById("data-table").style.display = "none";
+
+    const container = document.getElementById("stats-cards");
+    container.style.display = "flex";
+
+    container.innerHTML = `
+        <div class="card"><h2>${stats.total_transactions}</h2><p>Total Transactions</p></div>
+        <div class="card"><h2>${stats.confirmed}</h2><p>Confirmed</p></div>
+        <div class="card"><h2>${stats.total_eth_received}</h2><p>Total ETH Received</p></div>
+        <div class="card"><h2>${stats.total_tokens_allocated}</h2><p>Total Tokens Allocated</p></div>
+    `;
+}
+</script>
+
+</body>
+</html>
