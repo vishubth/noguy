@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -6,6 +6,7 @@ import sqlite3
 import requests
 import json
 import os
+import uuid
 
 
 # -------------------------------
@@ -40,6 +41,11 @@ DB = "presale.db"
 ADMIN_WALLET = "0xE562539aC11a45aC9D37C779A33D1b571e49f272"  # Your ETH wallet
 ETHERSCAN_API_KEY = "PUA9B1D9WGH3PCMPD94NKHT1VQUJ8YWEFM"
 TOKEN_RATE = 60000  # 1 ETH = 60,000 tokens
+ADMIN_KEY = "admin123"
+ADMIN_PASSWORD = "admin456"
+SESSIONS = {}   # simple in-memory session store: { token: True }
+
+
 
 # -------------------------------
 # DATABASE SETUP
@@ -219,6 +225,181 @@ def get_purchases(wallet: str, all: bool = False):
     conn.close()
 
     return JSONResponse([dict(row) for row in data])
+
+# -----------------------
+# API: ADMIN HTML PAGE
+# -----------------------
+@app.get("/admin", response_class=HTMLResponse)
+def admin_panel(request: Request):
+    """Simple admin interface UI"""
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+@app.post("/admin/login")
+async def admin_login(request: Request):
+    data = await request.json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if username != ADMIN_KEY or password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Generate session token
+    token = str(uuid.uuid4())
+    SESSIONS[token] = True
+
+    return {"token": token}
+
+
+def require_admin_token(request: Request):
+    token = request.headers.get("admin-token")
+    if not token or token not in SESSIONS:
+        raise HTTPException(status_code=401, detail="Not logged in")
+    return True
+
+
+
+# ------------------------------------
+# API: Get ALL purchases (admin only)
+# ------------------------------------
+@app.get("/admin/api/purchases", dependencies=[Depends(require_admin_token)])
+def admin_get_filtered_purchases(
+    wallet: str = None,
+    amount: float = None,
+    amount_eth: float = None,
+    tokens_allocated: float = None,
+    confirmed: int = None,
+    tx_hash: str = None,
+):
+    conn = get_db()
+    query = "SELECT * FROM purchases WHERE 1=1"
+    params = []
+
+    if wallet:
+        query += " AND wallet LIKE ?"
+        params.append(f"%{wallet}%")
+
+    if amount is not None:
+        query += " AND amount = ?"
+        params.append(amount)
+
+    if amount_eth is not None:
+        query += " AND amount_eth = ?"
+        params.append(amount_eth)
+
+    if tokens_allocated is not None:
+        query += " AND tokens_allocated = ?"
+        params.append(tokens_allocated)
+
+    if confirmed is not None:
+        query += " AND confirmed = ?"
+        params.append(confirmed)
+
+    if tx_hash:
+        query += " AND tx_hash LIKE ?"
+        params.append(f"%{tx_hash}%")
+
+    query += " ORDER BY id DESC"
+
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return JSONResponse([dict(r) for r in rows])
+
+
+
+# ------------------------------------
+# API: Add a purchase manually(admin only)
+# ------------------------------------
+@app.post("/admin/api/purchases", dependencies=[Depends(require_admin_token)])
+async def admin_add_purchase(request: Request):
+    data = await request.json()
+
+    wallet = data.get("wallet")
+    amount = data.get("amount")
+    amount_eth = data.get("amount_eth")
+    tokens = data.get("tokens_allocated")
+    confirmed = data.get("confirmed", 0)
+
+    if not wallet:
+        raise HTTPException(400, "Wallet is required")
+
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO purchases (wallet, amount, amount_eth, tokens_allocated, confirmed)
+        VALUES (?, ?, ?, ?, ?)
+    """, (wallet, amount, amount_eth, tokens, confirmed))
+    conn.commit()
+    conn.close()
+
+    return {"status": "success"}
+
+
+# ------------------------------------
+# API: Update purchase details(admin only)
+# ------------------------------------
+@app.put("/admin/api/purchases/{pid}", dependencies=[Depends(require_admin_token)])
+async def admin_update_purchase(pid: int, request: Request):
+    data = await request.json()
+
+    conn = get_db()
+    fields = []
+    values = []
+
+    for key in ["wallet", "amount", "amount_eth", "tokens_allocated", "confirmed", "tx_hash"]:
+        if key in data:
+            fields.append(f"{key}=?")
+            values.append(data[key])
+
+    if not fields:
+        raise HTTPException(400, "No fields provided to update")
+
+    values.append(pid)
+
+    query = f"UPDATE purchases SET {', '.join(fields)} WHERE id=?"
+    conn.execute(query, tuple(values))
+    conn.commit()
+    conn.close()
+
+    return {"status": "updated"}
+
+# ------------------------------------
+# API: Delete purchase details(admin only)
+# ------------------------------------
+@app.delete("/admin/api/purchases/{pid}", dependencies=[Depends(require_admin_token)])
+def admin_delete_purchase(pid: int):
+    conn = get_db()
+    conn.execute("DELETE FROM purchases WHERE id=?", (pid,))
+    conn.commit()
+    conn.close()
+
+    return {"status": "deleted"}
+
+# ------------------------------------
+# API: Get Dashboard Stats (Visualization Data)
+# ------------------------------------
+@app.get("/admin/api/stats")
+def admin_stats(authorized=Depends(require_admin_token)):
+    conn = get_db()
+
+    total_users = conn.execute("SELECT COUNT(*) FROM purchases").fetchone()[0]
+    confirmed = conn.execute("SELECT COUNT(*) FROM purchases WHERE confirmed=1").fetchone()[0]
+    total_eth = conn.execute("SELECT SUM(amount_eth) FROM purchases").fetchone()[0] or 0
+    total_tokens = conn.execute("SELECT SUM(tokens_allocated) FROM purchases").fetchone()[0] or 0
+
+    conn.close()
+
+    return {
+        "total_transactions": total_users,
+        "confirmed": confirmed,
+        "total_eth_received": round(total_eth, 4),
+        "total_tokens_allocated": total_tokens
+    }
+
+
+
+
+
+
+
 
 
 
