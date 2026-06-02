@@ -1,87 +1,95 @@
-# NoGuy - Cryptocurrency Token Sale Operations Platform
+# Digital Asset Fundraising Operations Platform
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-green)
-![Blockchain](https://img.shields.io/badge/domain-Web3-orange)
-![Backend](https://img.shields.io/badge/focus-Backend%20Systems-black)
+![FinTech](https://img.shields.io/badge/domain-Digital%20Assets-orange)
+![Backend](https://img.shields.io/badge/focus-Operations%20Platform-black)
 
-## Overview
+## Executive Summary
 
-NoGuy is a cryptocurrency token sale operations platform designed to support investor onboarding, payment verification, token allocation workflows, transaction tracking, and administrative operations management.
+Digital Asset Fundraising Operations Platform is a backend-driven operational system designed to support investor onboarding, payment verification, fundraising operations, allocation management, transaction reconciliation, and administrative reporting for digital asset offerings.
 
-The platform was developed to streamline token sale activities by combining blockchain payment validation, investor account management, real-time pricing integration, and operational dashboards into a unified workflow.
-
----
-
-## Business Problem
-
-Token sale operations often require teams to manually:
-
-- verify blockchain transactions
-- calculate token allocations
-- track investor purchases
-- manage payment confirmations
-- monitor fundraising activity
-- provide investor visibility
-
-This platform automates those operational workflows through a centralized application layer.
+The platform consolidates fundraising workflows into a single operational environment, reducing manual verification effort and improving visibility into investor activity and fundraising performance.
 
 ---
 
-## Core Platform Capabilities
+## Business Context
+
+Fundraising teams operating digital asset offerings often face challenges around:
+
+- investor onboarding and tracking
+- payment verification workflows
+- allocation calculations
+- transaction reconciliation
+- fundraising reporting
+- operational oversight
+
+This platform automates those workflows through a centralized application layer.
+
+---
+
+## Core Capabilities
 
 ### Investor Operations
 
-- token purchase workflows
-- wallet-based transaction tracking
-- purchase history management
-- allocation visibility
-- investor dashboard experience
+- Digital asset purchase workflows
+- Wallet-based investor identification
+- Purchase history management
+- Allocation visibility
+- Investor self-service dashboard
 
 ### Payment Verification
 
 - Ethereum transaction verification
-- blockchain payment confirmation
+- Blockchain payment confirmation
 - Etherscan integration
-- transaction validation workflows
-- payment status tracking
+- Transaction validation workflows
+- Payment status tracking
 
-### Token Allocation Engine
+### Allocation Engine
 
-- dynamic allocation calculations
+- Dynamic allocation calculations
 - ETH conversion support
-- configurable token distribution logic
-- bonus allocation support
+- Bonus allocation support
+- Distribution tracking
 
 ### Administrative Operations
 
-- transaction monitoring
-- purchase management
-- investor record management
-- operational reporting
-- fundraising visibility
+- Transaction monitoring
+- Investor management
+- Fundraising oversight
+- Allocation management
+- Operational reporting
 
 ---
 
 ## System Architecture
 
 ```text
-Investor Interface
-        ↓
+Investor Portal
+       │
+       ▼
 FastAPI Application Layer
-        ↓
-Purchase Processing Engine
-        ↓
-Blockchain Verification Services
-        ↓
-Allocation & Tracking Engine
-        ↓
-Administrative Dashboard
+       │
+       ├── Investor Operations
+       ├── Payment Verification Service
+       ├── Allocation Engine
+       └── Reporting Service
+       │
+       ▼
+Persistence Layer
+(SQLite)
+       │
+       ▼
+External Integrations
+├── Ethereum Network
+├── Etherscan API
+└── Market Pricing APIs
 ```
 
 ---
 
-## Technical Components
+## Technical Stack
 
 ### Backend
 
@@ -95,34 +103,55 @@ Administrative Dashboard
 - SQLite
 - Transaction Persistence
 - Purchase Records
+- Allocation Tracking
 
 ### Blockchain Integration
 
-- Ethereum Transaction Validation
-- Etherscan API
-- Wallet Verification
+- Ethereum Verification
+- Etherscan APIs
+- Wallet Validation
 - Payment Confirmation Workflows
 
-### Frontend
+### User Interface
 
 - Jinja2 Templates
-- Dashboard Interfaces
-- Administrative Views
+- Investor Dashboard
+- Administrative Dashboard
 
 ---
 
-## Engineering Highlights
+## Engineering Demonstrated
 
-This project demonstrates practical implementation experience in:
+This repository demonstrates practical experience building:
 
-- backend systems engineering
-- financial transaction workflows
-- blockchain integrations
-- API design
-- administrative operations tooling
-- payment verification systems
-- database-backed applications
-- operational dashboard development
+- financial workflow systems
+- transaction processing platforms
+- blockchain-integrated applications
+- operational dashboards
+- administrative tooling
+- payment verification workflows
+- API-driven architectures
+- database-backed business systems
+
+---
+
+## Operational Workflow
+
+```text
+Investor Purchase Request
+          ↓
+Allocation Calculation
+          ↓
+Payment Submission
+          ↓
+Blockchain Verification
+          ↓
+Transaction Confirmation
+          ↓
+Allocation Tracking
+          ↓
+Administrative Reporting
+```
 
 ---
 
@@ -135,13 +164,11 @@ main.py
 requirements.txt
 ```
 
-The current repository represents a client-delivery implementation and serves as a reference architecture for token sale operations workflows.
+Current implementation reflects an MVP delivery architecture focused on validating fundraising operations workflows.
 
 ---
 
-## Future Architecture Evolution
-
-Planned modernization areas include:
+## Planned Enterprise Evolution
 
 ```text
 src/
@@ -149,30 +176,47 @@ src/
 ├── services/
 ├── database/
 ├── models/
-├── admin/
+├── schemas/
+├── integrations/
 └── config/
 ```
 
-Potential improvements:
+Planned enhancements:
 
-- service-layer separation
-- SQLAlchemy integration
-- environment-based configuration
-- automated testing
+- SQLAlchemy ORM
+- Alembic migrations
+- Environment-based configuration
+- Pydantic request validation
+- Docker deployment
+- Automated testing
 - CI/CD pipelines
-- containerized deployment
-- observability and monitoring
+- Monitoring and observability
+- Event-driven workflow processing
+
+---
+
+## Future AI Enhancements
+
+Potential AI-powered extensions:
+
+- Fundraising analytics copilot
+- Investor segmentation models
+- Transaction anomaly detection
+- Allocation forecasting
+- Investor engagement intelligence
+- Operations automation assistant
 
 ---
 
 ## Portfolio Relevance
 
-This project highlights experience building operational systems that combine:
+This project demonstrates the intersection of:
 
-- Web3 infrastructure
-- transaction processing
-- financial workflow automation
-- backend application development
-- dashboard-driven operations management
+- FinTech engineering
+- Digital asset infrastructure
+- Transaction processing
+- Operational workflow automation
+- Administrative platform development
+- Blockchain integrations
 
-It demonstrates the intersection of software engineering, blockchain integrations, and business operations tooling.
+The repository serves as a representative example of building business-critical operational software supporting digital asset fundraising and investor operations.
