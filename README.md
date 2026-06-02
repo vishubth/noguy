@@ -3,65 +3,30 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-green)
 ![FinTech](https://img.shields.io/badge/domain-Digital%20Assets-orange)
-![Backend](https://img.shields.io/badge/focus-Operations%20Platform-black)
 
 ## Executive Summary
 
-Digital Asset Fundraising Operations Platform is a backend-driven operational system designed to support investor onboarding, payment verification, fundraising operations, allocation management, transaction reconciliation, and administrative reporting for digital asset offerings.
-
-The platform consolidates fundraising workflows into a single operational environment, reducing manual verification effort and improving visibility into investor activity and fundraising performance.
-
----
-
-## Business Context
-
-Fundraising teams operating digital asset offerings often face challenges around:
-
-- investor onboarding and tracking
-- payment verification workflows
-- allocation calculations
-- transaction reconciliation
-- fundraising reporting
-- operational oversight
-
-This platform automates those workflows through a centralized application layer.
-
----
+Digital Asset Fundraising Operations Platform is a FastAPI-based backend system supporting investor onboarding, blockchain payment verification, allocation management, transaction tracking, and administrative reporting for digital asset fundraising operations.
 
 ## Core Capabilities
 
 ### Investor Operations
-
 - Digital asset purchase workflows
 - Wallet-based investor identification
 - Purchase history management
-- Allocation visibility
-- Investor self-service dashboard
+- Investor self-service access
 
 ### Payment Verification
-
 - Ethereum transaction verification
-- Blockchain payment confirmation
 - Etherscan integration
-- Transaction validation workflows
-- Payment status tracking
-
-### Allocation Engine
-
-- Dynamic allocation calculations
-- ETH conversion support
-- Bonus allocation support
-- Distribution tracking
+- Payment confirmation workflows
+- Transaction status tracking
 
 ### Administrative Operations
-
-- Transaction monitoring
 - Investor management
+- Transaction monitoring
 - Fundraising oversight
-- Allocation management
 - Operational reporting
-
----
 
 ## System Architecture
 
@@ -69,154 +34,71 @@ This platform automates those workflows through a centralized application layer.
 Investor Portal
        │
        ▼
-FastAPI Application Layer
+FastAPI API Layer
        │
-       ├── Investor Operations
-       ├── Payment Verification Service
-       ├── Allocation Engine
-       └── Reporting Service
-       │
-       ▼
-Persistence Layer
-(SQLite)
-       │
-       ▼
-External Integrations
-├── Ethereum Network
-├── Etherscan API
-└── Market Pricing APIs
+       ├── Routes
+       ├── Business Services
+       ├── Repositories
+       ├── Database Layer
+       └── Configuration
 ```
-
----
-
-## Technical Stack
-
-### Backend
-
-- FastAPI
-- Python
-- REST APIs
-- Session Management
-
-### Data Layer
-
-- SQLite
-- Transaction Persistence
-- Purchase Records
-- Allocation Tracking
-
-### Blockchain Integration
-
-- Ethereum Verification
-- Etherscan APIs
-- Wallet Validation
-- Payment Confirmation Workflows
-
-### User Interface
-
-- Jinja2 Templates
-- Investor Dashboard
-- Administrative Dashboard
-
----
-
-## Engineering Demonstrated
-
-This repository demonstrates practical experience building:
-
-- financial workflow systems
-- transaction processing platforms
-- blockchain-integrated applications
-- operational dashboards
-- administrative tooling
-- payment verification workflows
-- API-driven architectures
-- database-backed business systems
-
----
-
-## Operational Workflow
-
-```text
-Investor Purchase Request
-          ↓
-Allocation Calculation
-          ↓
-Payment Submission
-          ↓
-Blockchain Verification
-          ↓
-Transaction Confirmation
-          ↓
-Allocation Tracking
-          ↓
-Administrative Reporting
-```
-
----
 
 ## Repository Structure
 
 ```text
+src/
+├── api/
+│   ├── admin.py
+│   ├── investor.py
+│   └── routes/
+│       ├── admin_routes.py
+│       └── investor_routes.py
+│
+├── services/
+├── repositories/
+├── schemas/
+├── database/
+├── config/
+│
 static/
 templates/
 main.py
 requirements.txt
 ```
 
-Current implementation reflects an MVP delivery architecture focused on validating fundraising operations workflows.
+The project has evolved from a monolithic MVP implementation into a layered FastAPI architecture separating API orchestration, business services, persistence, configuration, and request validation concerns.
 
----
+## Technical Stack
 
-## Planned Enterprise Evolution
+- FastAPI
+- Python
+- SQLite
+- Pydantic
+- Jinja2
+- REST APIs
+- Ethereum / Etherscan integrations
 
-```text
-src/
-├── api/
-├── services/
-├── database/
-├── models/
-├── schemas/
-├── integrations/
-└── config/
-```
+## Engineering Demonstrated
 
-Planned enhancements:
+- Financial workflow systems
+- Transaction processing platforms
+- Blockchain-integrated applications
+- Repository pattern
+- Service-layer architecture
+- API-driven development
+- Database-backed business systems
+
+## Future Enhancements
 
 - SQLAlchemy ORM
 - Alembic migrations
-- Environment-based configuration
-- Pydantic request validation
 - Docker deployment
 - Automated testing
 - CI/CD pipelines
 - Monitoring and observability
 - Event-driven workflow processing
-
----
-
-## Future AI Enhancements
-
-Potential AI-powered extensions:
-
-- Fundraising analytics copilot
-- Investor segmentation models
-- Transaction anomaly detection
-- Allocation forecasting
-- Investor engagement intelligence
-- Operations automation assistant
-
----
+- AI-powered fundraising analytics
 
 ## Portfolio Relevance
 
-This project demonstrates the intersection of:
-
-- FinTech engineering
-- Digital asset infrastructure
-- Transaction processing
-- Operational workflow automation
-- Administrative platform development
-- Blockchain integrations
-
-The repository serves as a representative example of building business-critical operational software supporting digital asset fundraising and investor operations.
+This repository demonstrates practical experience building business-critical operational software at the intersection of FinTech, blockchain infrastructure, transaction processing, and administrative platform development.
