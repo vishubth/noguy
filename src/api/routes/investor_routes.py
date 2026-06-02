@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException
 
 from src.api.investor import InvestorApi
 from src.schemas.purchase import PurchaseRequest, ConfirmRequest
-from src.config.settings import TOKEN_RATE, ADMIN_WALLET, ETHERSCAN_API_KEY
+from src.config.settings import TOKEN_RATE, ADMIN_WALLET, ETHERSCAN_API_KEY, DATABASE_NAME
+from src.database.database import get_db
+from src.repositories.purchase_repository import PurchaseRepository
 
 router = APIRouter(prefix='/api', tags=['investor'])
 
@@ -32,5 +34,20 @@ def confirm(payload: ConfirmRequest):
     return {'status': 'confirmed' if verified else 'unconfirmed'}
 
 
-# Remaining migration target:
-# GET /purchases
+@router.get('/purchases')
+def purchases(wallet: str, all: bool = False):
+    if not wallet:
+        raise HTTPException(status_code=400, detail='Wallet required')
+
+    conn = get_db(DATABASE_NAME)
+
+    try:
+        rows = PurchaseRepository.get_purchases_by_wallet(
+            conn,
+            wallet,
+            include_unconfirmed=all,
+        )
+
+        return InvestorApi.purchases_logic(rows)
+    finally:
+        conn.close()
