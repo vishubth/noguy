@@ -11,27 +11,63 @@ router = APIRouter(prefix='/api', tags=['investor'])
 
 @router.post('/buy')
 def buy(payload: PurchaseRequest):
+    conn = get_db(DATABASE_NAME)
+
     try:
-        return InvestorApi.buy_logic(
+        purchase = InvestorApi.buy_logic(
             wallet=payload.wallet,
             amount_usd=payload.amount,
             token_rate=TOKEN_RATE,
             admin_wallet=ADMIN_WALLET,
         )
+
+        PurchaseRepository.create_purchase(
+            conn,
+            wallet=purchase['wallet'],
+            amount=payload.amount,
+            amount_eth=purchase['amount_eth'],
+            tokens_allocated=purchase['tokens_allocated'],
+        )
+
+        return purchase
+
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    finally:
+        conn.close()
 
 
 @router.post('/confirm')
 def confirm(payload: ConfirmRequest):
-    verified = InvestorApi.confirm_logic(
-        tx_hash=payload.tx_hash,
-        admin_wallet=ADMIN_WALLET,
-        expected_amount_eth=0,
-        etherscan_api_key=ETHERSCAN_API_KEY,
-    )
+    conn = get_db(DATABASE_NAME)
 
-    return {'status': 'confirmed' if verified else 'unconfirmed'}
+    try:
+        purchase = PurchaseRepository.get_latest_purchase_by_wallet(
+            conn,
+            payload.wallet,
+        )
+
+        if not purchase:
+            raise HTTPException(status_code=404, detail='No pending purchase found')
+
+        verified = InvestorApi.confirm_logic(
+            tx_hash=payload.tx_hash,
+            admin_wallet=ADMIN_WALLET,
+            expected_amount_eth=purchase['amount_eth'],
+            etherscan_api_key=ETHERSCAN_API_KEY,
+        )
+
+        if verified:
+            PurchaseRepository.confirm_purchase(
+                conn,
+                purchase['id'],
+                payload.tx_hash,
+            )
+
+        return {'status': 'confirmed' if verified else 'unconfirmed'}
+
+    finally:
+        conn.close()
 
 
 @router.get('/purchases')
